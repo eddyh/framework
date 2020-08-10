@@ -1,10 +1,10 @@
 import {IncomingMessage, Server, ServerResponse} from "http"
 import {Socket} from "net"
-import Logger from "../util/logger";
+import Logger from "../util/logger"
 
 export class ClosableServer extends Server {
   closing = false
-  logg = new Logger
+  logg = new Logger()
   private readonly sockets = new Map<Socket, number>()
 
   constructor() {
@@ -51,7 +51,6 @@ export class ClosableServer extends Server {
     this.closing = true
 
     process.nextTick(() => {
-      console.log("log 10")
       for (const [socket, pending] of this.sockets) {
         if (pending === 0) {
           socket.end()
