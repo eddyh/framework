@@ -1,40 +1,43 @@
 import {IncomingMessage, Server, ServerResponse} from "http"
 import {Socket} from "net"
+import Logger from "../util/logger";
 
 export class ClosableServer extends Server {
   closing = false
+  logg = new Logger
   private readonly sockets = new Map<Socket, number>()
 
   constructor() {
     super()
+    this.logg.warning("log 0")
 
     this.on("connection", (socket: Socket) => {
-      console.log("log 1")
+      this.logg.warning("log 1")
       this.sockets.set(socket, 0)
 
       socket.on("close", () => {
-        console.log("log 2")
+        this.logg.warning("log 2")
         this.sockets.delete(socket)
       })
     })
 
     this.on("request", (request: IncomingMessage, response: ServerResponse) => {
-      console.log("log 3")
+      this.logg.warning("log 3")
       const socket = request.socket
       this.sockets.set(socket, +this.sockets.get(socket)! + 1)
-      console.log("log 4")
+      this.logg.warning("log 4")
       if (this.closing) {
-        console.log("log 5")
+        this.logg.warning("log 5")
         response.setHeader("Connection", "close")
       }
-      console.log("log 6")
+      this.logg.warning("log 6")
       response.on("finish", () => {
-        console.log("log 7")
+        this.logg.warning("log 7")
         const pending = +this.sockets.get(socket)! - 1
         this.sockets.set(socket, pending)
 
         if (this.closing && pending === 0) {
-          console.log("log 8")
+          this.logg.warning("log 8")
           socket.end()
         }
       })
@@ -42,7 +45,7 @@ export class ClosableServer extends Server {
   }
 
   close(callback?: (err?: Error) => void): this {
-    console.log("log 9")
+    this.logg.warning("log 9")
     super.close(callback)
 
     this.closing = true
